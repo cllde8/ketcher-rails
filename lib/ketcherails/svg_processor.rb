@@ -41,10 +41,10 @@ module Ketcherails
 
     def get_internal_transform_shift(path)
       transformation = path["transform"]
-      if transformation.match(/^matrix/)
+      if transformation&.match(/^matrix/)
         matrix = get_matrix_from_transform_matrix(transformation)
         get_translation_from_matrix(matrix)
-      elsif transformation.match(/^translate/)
+      elsif transformation&.match(/^translate/)
         get_translation_from_transform_translate(transformation)
       end
     end
@@ -100,7 +100,7 @@ module Ketcherails
 
     def text_extrema
       texts.each do |element|
-        if !element["style"].match(/display:\s*none/)
+        if !element["style"]&.match(/display:\s*none/)
           coordinates = splitxy_for_text(element)
           sx,sy = *get_internal_transform_shift(element)
           coordinates.map!{|xy| x,y = *xy; [x+sx,y+sy]}
@@ -111,7 +111,7 @@ module Ketcherails
 
     def circle_extrema
       circles.each do |element|
-        if !element["style"].match(/display:\s*none/)
+        if !element["style"]&.match(/display:\s*none/)
           coordinates = splitxy_for_circle(element)
           sx,sy = *get_internal_transform_shift(element)
           coordinates.map!{|xy| x,y = *xy; [x+sx,y+sy]}
@@ -136,14 +136,14 @@ module Ketcherails
     private
 
     def get_translation_from_transform_translate(transformation)
-      transformation.match(/translate\( ([-+]?\d+\.?\d*)\s*(,\s*([-+]?\d+\.?\d*))?\)/)
+      transformation&.match(/translate\( ([-+]?\d+\.?\d*)\s*(,\s*([-+]?\d+\.?\d*))?\)/)
       translation =[$1.to_f,$1.to_f] if $1
       translation[1]=$3.to_f if $3
       tranlation||=nil
     end
 
     def get_matrix_from_transform_matrix(transform_matrix)
-      transform_matrix.match(/matrix\(([-+]?\d+\.?\d*)\s*,\s*([-+]?\d+\.?\d*)\s*,([-+]?\d+\.?\d*)\s*,([-+]?\d+\.?\d*)\s*,([-+]?\d+\.?\d*)\s*,([-+]?\d+\.?\d*)\s*\)/)
+      transform_matrix&.match(/matrix\(([-+]?\d+\.?\d*)\s*,\s*([-+]?\d+\.?\d*)\s*,([-+]?\d+\.?\d*)\s*,([-+]?\d+\.?\d*)\s*,([-+]?\d+\.?\d*)\s*,([-+]?\d+\.?\d*)\s*\)/)
        [$1.to_f, $2.to_f, $3.to_f, $4.to_f, $5.to_f, $6.to_f ]
     end
 
@@ -184,7 +184,7 @@ module Ketcherails
 
     def splitxy_for_path(d="",origin=[0,0])
       splitted=[]
-      d.match(/\s*([mlhvzMLHVZ])/) && (command,data=$1,$')
+      d&.match(/\s*([mlhvzMLHVZ])/) && (command,data=$1,$')
       while data!=""
         case command
         when "M"
@@ -211,7 +211,7 @@ module Ketcherails
         when "c"
         when "C"
         end
-        data.match(/\s*([mlhvzscMLHVZSC])/) && (command,data=$1,$') || (data="")
+        data&.match(/\s*([mlhvzscMLHVZSC])/) && (command,data=$1,$') || (data="")
       end
       splitted
     end
